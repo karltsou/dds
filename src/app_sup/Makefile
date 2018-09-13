@@ -4,29 +4,21 @@ OUTPUTFILE = libapp_sup.a
 CLEANEXTS = o a
 CC = gcc
 CFLAGS += -I../../include -DLINUX_POWERPC
-
-#.PHONY: all
-#all: $(OUTPUTFILE)
+src = $(wildcard *.c)
+obj = $(src:.c=.o)
 
 # Build static library
-$(OUTPUTFILE): app_pnic.o app_xmal.o rmalloc.o
+$(OUTPUTFILE): $(obj)
 	#ar -r -o $@ $^
 	#gcc $(CFLAGS) $^ -o $@
 	ar ru $@ $^
 	ranlib $@
 
-# app_pnic.o: app_pnic.c
-# 	gcc -c $(CFLAGS) -o $@ $<
-
-# app_xmal.o: app_xmal.c
-# 	gcc -c $(CFLAGS) -o $@ $<
-
-# rmalloc.o: rmalloc.c
-# 	gcc -c $(CFLAGS) -o $@ $<
-
-# Enumerating of every .c to .o
-%.o: %.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+# include dep files
+-include $(dep)
+# rule to generate a dep file
+%.d: %.c
+	@$(CC) $(CFLAGS) $< -MM -MT $(@:.d=.o) >$@
 
 .PHONY: clean
 clean:
